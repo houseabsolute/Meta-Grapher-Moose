@@ -3,12 +3,12 @@ package Meta::Grapher::Moose;
 use strict;
 use warnings;
 use autodie;
+use namespace::autoclean;
 
 our $VERSION = '0.01';
 
 use Getopt::Long;
 use GraphViz2;
-use Module::Runtime qw( require_module );
 use Scalar::Util qw( blessed );
 use Try::Tiny;
 
@@ -47,12 +47,22 @@ has _edges => (
 
 with 'MooseX::Getopt::Dashes';
 
+=for Pod::Coverage run
+
+=cut
+
 sub run {
     my $self = shift;
 
     my $package = $self->package;
+
+    # This just produces a better error message than Module::Runtime or any
+    # other runtime loader.
+    #
+    ## no critic (BuiltinFunctions::ProhibitStringyEval)
     eval "require $package; 1;"
         or die $@;
+    ## use critic
 
     my $meta = try { $package->meta }
         or die "$package does not have a ->meta method\n";
