@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use autodie;
 
+our $VERSION = '0.01';
+
 use Getopt::Long;
 use GraphViz2;
 use Module::Runtime qw( require_module );
