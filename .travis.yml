@@ -5,6 +5,8 @@ addons:
     packages:
       - aspell
       - aspell-en
+      - graphviz
+      - graphviz-dev
 language: perl
 perl:
   - blead
