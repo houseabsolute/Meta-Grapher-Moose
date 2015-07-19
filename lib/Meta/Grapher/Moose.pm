@@ -47,10 +47,6 @@ has _edges => (
 
 with 'MooseX::Getopt::Dashes';
 
-=for Pod::Coverage run
-
-=cut
-
 sub run {
     my $self = shift;
 
@@ -253,6 +249,12 @@ __PACKAGE__->meta->make_immutable;
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=for Pod::Coverage run
+
 =head1 SYNOPSIS
 
     you@hostname:~$ graph-meta.pl --package Your::Package --output your-package.svg
@@ -267,3 +269,5 @@ give this tool a role name as well.
 
 B<This is still a very early release and there are a lot of improvements that
 could be made. Suggestions and pull requests are welcome.>
+
+=cut
