@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.02     2015-07-20
+
 - When given a role name, the grapher would try to follows its superclasses,
   which caused an exception. Reported by Mark Fowler.
 
