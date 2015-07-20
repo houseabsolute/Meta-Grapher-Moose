@@ -78,7 +78,8 @@ sub run {
     # We halve the weight each time we go up the tree. This makes the graph
     # cleaner (straighter lines) nearest the node we start from.
     my $weight = 2048;
-    $self->_follow_parents( $meta, $weight );
+    $self->_follow_parents( $meta, $weight )
+        if $meta->isa('Moose::Meta::Class');
     $self->_follow_roles( $meta, $meta, $weight );
 
     $self->_graph->run(
