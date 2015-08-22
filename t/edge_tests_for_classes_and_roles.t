@@ -145,7 +145,7 @@ sub parse_config {
         $result = parse_config( $family, $result );
 
         # Update our expecations
-        print $this. '(' . ( scalar @relations ) . '): $package' . "\n"
+        print $this. '(' . ( scalar @relations ) . "): $package" . "\n"
             || die
             if $DEBUG;
         push @relations, 'Moose::Object'

@@ -220,7 +220,7 @@ sub _add_edge_to_graph {
     # which are actually implemented as TWO roles. _node_label_for() helps us
     # collapse these roles into a single node on the graph by having them share
     # a name. Here, we use a short-circuit return to hide the link between them.
-    my ($from,$to) = map { $args{$_} } qw( from to );
+    my ( $from, $to ) = map { $args{$_} } qw( from to );
     return if $from eq $to;
 
     my $key = join "\0", @args{ 'from', 'to' };
