@@ -5,7 +5,7 @@ use warnings;
 use autodie;
 use namespace::autoclean;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 use Getopt::Long;
 use GraphViz2;
@@ -214,6 +214,14 @@ sub _add_edge_to_graph {
     my %args = @_;
 
     $args{$_} = $self->_node_label_for( $args{$_} ) for qw( from to );
+
+    # This is not a paranoid check for recursive inheiritance. We are actually
+    # looking for a case that will happen when processing parametized roles,
+    # which are actually implemented as TWO roles. _node_label_for() helps us
+    # collapse these roles into a single node on the graph by having them share
+    # a name. Here, we use a short-circuit return to hide the link between them.
+    my ($from,$to) = map { $args{$_} } qw( from to );
+    return if $from eq $to;
 
     my $key = join "\0", @args{ 'from', 'to' };
     return if $self->_already_saw_edge($key);
