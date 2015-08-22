@@ -5,7 +5,7 @@ use warnings;
 use autodie;
 use namespace::autoclean;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use Getopt::Long;
 use GraphViz2;
@@ -99,7 +99,7 @@ sub run {
 sub _build_graphviz2 {
     return GraphViz2->new(
         global => { directed => 1 },
-        graph  => {
+        graph => {
             size  => '40,30',
             ratio => 'fill',
         },
@@ -170,31 +170,29 @@ sub _record_role {
         $new_meta = $role;
     }
     else {
-        my ( $role_for_node, $edge_color, $label_text );
+        my ( $edge_color, $label_text );
         if (
             $role->isa(
                 'MooseX::Role::Parameterized::Meta::Role::Parameterized')
             ) {
-            $role_for_node = $role->genitor;
-            $edge_color    = 'lawngreen';
-            $label_text    = 'consumes with parameters';
+            $edge_color = 'lawngreen';
+            $label_text = 'consumes with parameters';
         }
         else {
-            $role_for_node = $role;
-            $edge_color    = 'green';
-            $label_text    = 'consumes';
+            $edge_color = 'green';
+            $label_text = 'consumes';
         }
 
         $self->_add_edge_to_graph(
-            from   => $role_for_node,
+            from   => $role,
             to     => $to_meta,
             color  => $edge_color,
             label  => $label_text,
             weight => $weight,
         );
 
-        $to_meta  = $role_for_node;
-        $new_meta = $role_for_node;
+        $to_meta  = $role;
+        $new_meta = $role;
     }
 
     $self->_follow_roles( $to_meta, $new_meta, $weight );
@@ -237,6 +235,18 @@ sub _record_edge {
 sub _node_label_for {
     my $self = shift;
     my $meta = shift;
+
+    # Parameterized roles are actually implemented as two roles. The Meta Role has
+    # the core logic, including any roles it consumes; however, it is an 'anonymous'
+    # role with an auto-generated name. It's partner (->genitor) has the readable name.
+    # By making BOTH roles use the human-friendly name, we collapse them into a single
+    # node on the map. This 'tweak' allows us to visualize them as a single, integrated
+    # unit, which is the same way we interact with them as programmers.
+    if (
+        $meta->isa('MooseX::Role::Parameterized::Meta::Role::Parameterized') )
+    {
+        $meta = $meta->genitor;
+    }
 
     return $meta unless blessed $meta && $meta->can('name');
     return $meta->name;
