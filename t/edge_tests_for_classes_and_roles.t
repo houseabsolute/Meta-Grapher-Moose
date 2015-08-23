@@ -119,7 +119,7 @@ sub get_package_type {
 
 sub parse_config {
     my ( $config, $result ) = @_;
-    while ( my ( $this, $family ) = each $config ) {
+    while ( my ( $this, $family ) = each %$config ) {
 
         # Validate our configuration 'syntax'
         die 'Bad config (expects each key to be a hashref or "1")!'
