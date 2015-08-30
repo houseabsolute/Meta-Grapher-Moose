@@ -32,11 +32,18 @@ our @EXPORT = 'test_graphing_for';
 
         my $expect = _define_packages( $prefix, %packages );
 
+        my $root_package = join '::', $prefix, $package_to_test;
         my $grapher = Test::Meta::Grapher::Moose::Recorder->new(
-            package => ( join '::', $prefix, $package_to_test ),
-            output => '/dev/null',
+            package => $root_package,
+            output  => '/dev/null',
         );
         $grapher->run;
+
+        is_deeply(
+            $grapher->recorded_nodes_added_to_graph,
+            [$root_package],
+            'added a single node to the graph for the root node'
+        );
 
         unless (
             is_deeply(

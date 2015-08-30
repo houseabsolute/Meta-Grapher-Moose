@@ -18,15 +18,9 @@ subtest(
             'ClassA' => {},
         );
 
-        my ( $prefix, $grapher ) = test_graphing_for(
+        test_graphing_for(
             'ClassA',
             %packages,
-        );
-
-        is_deeply(
-            $grapher->recorded_nodes_added_to_graph,
-            [ join '::', $prefix, 'ClassA' ],
-            'added a single node to the graph'
         );
     }
 );
