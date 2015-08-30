@@ -187,7 +187,8 @@ subtest(
                 extends => [ 'ClassB', 'ClassC' ],
             },
             ClassC => {
-                with => 'RoleA',
+                extends => 'ClassA',
+                with    => 'RoleA',
             },
             ClassB => {
                 extends => 'ClassA',
