@@ -14,6 +14,12 @@ use Try::Tiny;
 
 use Moose;
 
+## no critic (ValuesAndExpressions::ProhibitConstantPragma)
+use constant _CLASS  => 0;
+use constant _ROLE   => 1;
+use constant _P_ROLE => 2;
+## use critic
+
 has package => (
     is       => 'ro',
     isa      => 'Str',
@@ -26,6 +32,12 @@ has output => (
     required => 1,
 );
 
+has formatting => (
+    is      => 'ro',
+    isa     => 'ArrayRef[HashRef]',
+    builder => '_build_formatting',
+);
+
 has _graph => (
     is      => 'ro',
     isa     => 'GraphViz2',
@@ -35,8 +47,8 @@ has _graph => (
 
 has _edges => (
     traits  => ['Hash'],
-    is      => 'bare',
-    isa     => 'HashRef',
+    is      => 'ro',
+    isa     => 'HashRef[Bool]',
     lazy    => 1,
     default => sub { {} },
     handles => {
@@ -70,7 +82,7 @@ sub run {
         && ( $meta->isa('Moose::Meta::Class')
         || $meta->isa('Moose::Meta::Role') );
 
-    $self->_graph->add_node(
+    $self->_add_node_to_graph(
         name  => $self->_node_label_for($meta),
         shape => 'box',
     );
@@ -90,6 +102,14 @@ sub run {
     return 0;
 }
 
+sub _add_node_to_graph {
+    my $self = shift;
+
+    $self->_graph->add_node(@_);
+
+    return;
+}
+
 # Scaling the graph size in both dimensions at once does not change the shape
 # or layout of the graph. It only changes the resolution of the resulting
 # graphic. Given that SVGs are nicely scalable and the size of the file is not
@@ -99,7 +119,7 @@ sub run {
 sub _build_graphviz2 {
     return GraphViz2->new(
         global => { directed => 1 },
-        graph  => {
+        graph => {
             size  => '40,30',
             ratio => 'fill',
         },
@@ -112,11 +132,10 @@ sub _follow_parents {
     my $weight = shift;
 
     for my $parent ( map { Class::MOP::class_of($_) } $meta->superclasses ) {
-        $self->_add_edge_to_graph(
+        $self->_maybe_add_edge_to_graph(
             from   => $parent,
             to     => $meta,
-            color  => 'blue',
-            label  => 'extends',
+            type   => _CLASS,
             weight => $weight,
         );
 
@@ -159,45 +178,47 @@ sub _record_role {
     my $role    = shift;
     my $weight  = shift;
 
-    my $new_meta;
+    my @new_metas;
 
     # For the purposes of this graph, Composite roles are essentially an
     # implementation detail of Moose. We just want to see that Class A
-    # consumes Roles X, Y, & Z. The fact that this was done in a single with
+    # consumes Roles X, Y, & Z. The fact that this was done in a single "with"
     # (or not) is not going to be included on the graph. We skip composite
     # roles and simply graph the roles that they are composed of.
     if ( $role->isa('Moose::Meta::Role::Composite') ) {
-        $new_meta = $role;
+        @new_metas = $role;
     }
     else {
-        my ( $role_for_node, $edge_color, $label_text );
+        my ( $role_for_node, $type );
         if (
             $role->isa(
                 'MooseX::Role::Parameterized::Meta::Role::Parameterized')
             ) {
             $role_for_node = $role->genitor;
-            $edge_color    = 'lawngreen';
-            $label_text    = 'consumes with parameters';
+            $type          = _P_ROLE;
+
+            # We need to look at the roles provided by by the genitor role as
+            # well as the generated role. The latter case occurs when "with"
+            # is called inside the role{} block.
+            @new_metas = ( $role, $role->genitor );
         }
         else {
             $role_for_node = $role;
-            $edge_color    = 'green';
-            $label_text    = 'consumes';
+            $type          = _ROLE;
+            @new_metas     = $role;
         }
 
-        $self->_add_edge_to_graph(
+        $self->_maybe_add_edge_to_graph(
             from   => $role_for_node,
             to     => $to_meta,
-            color  => $edge_color,
-            label  => $label_text,
             weight => $weight,
+            type   => $type,
         );
 
-        $to_meta  = $role_for_node;
-        $new_meta = $role_for_node;
+        $to_meta = $role_for_node;
     }
 
-    $self->_follow_roles( $to_meta, $new_meta, $weight );
+    $self->_follow_roles( $to_meta, $_, $weight ) for @new_metas;
 
     return;
 }
@@ -211,27 +232,42 @@ sub _record_role {
 #
 # The same could happen with a weird inheritance tree where a class and its
 # parent both inherit from the same (other) parent class.
-sub _add_edge_to_graph {
+sub _maybe_add_edge_to_graph {
     my $self = shift;
-    my %args = @_;
+    my %p    = @_;
 
-    $args{$_} = $self->_node_label_for( $args{$_} ) for qw( from to );
+    @p{qw( from to )}
+        = map { $self->_node_label_for($_) } @p{qw( from to )};
 
-    my $key = join "\0", @args{ 'from', 'to' };
+    # When a parameterized role consumes role inside its role{} block, we may
+    # end up trying to add an edge from the parameterized role to itself,
+    # which we can just ignore.
+    return if $p{from} eq $p{to};
+
+    my $key = join ' - ', @p{qw( from to )};
     return if $self->_already_saw_edge($key);
 
-    $self->_graph->add_edge(%args);
-
-    $self->_record_edge($key);
+    $self->_add_edge_to_graph( key => $key, %p );
 
     return;
 }
 
-sub _record_edge {
+# This is separated out mostly so that the test class can override this and
+# record its own version of the edges that are added to the graph.
+sub _add_edge_to_graph {
     my $self = shift;
-    my $key  = shift;
+    my %p    = @_;
 
-    $self->_set_edge( $key => 1 );
+    $self->_graph->add_edge(
+        from   => $p{from},
+        to     => $p{to},
+        weight => $p{weight},
+        %{ $self->formatting->[ $p{type} ] },
+    );
+
+    $self->_set_edge( $p{key} => 1 );
+
+    return;
 }
 
 sub _node_label_for {
@@ -240,6 +276,23 @@ sub _node_label_for {
 
     return $meta unless blessed $meta && $meta->can('name');
     return $meta->name;
+}
+
+sub _build_formatting {
+    return [
+        {
+            color => 'blue',
+            label => 'extends',
+        },
+        {
+            color => 'green',
+            label => 'consumes',
+        },
+        {
+            color => 'lawngreen',
+            label => 'consumes with parameters',
+        },
+    ];
 }
 
 __PACKAGE__->meta->make_immutable;
