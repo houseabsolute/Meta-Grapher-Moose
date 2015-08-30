@@ -8,6 +8,7 @@ use lib 't/lib';
 
 use Class::MOP ();
 use Data::Dumper::Concise;
+use File::Spec;
 use Moose ();
 use Moose::Meta::Class;
 use Moose::Meta::Role;
@@ -33,9 +34,17 @@ our @EXPORT = 'test_graphing_for';
         my $expect = _define_packages( $prefix, %packages );
 
         my $root_package = join '::', $prefix, $package_to_test;
+
+        my $output = File::Spec->devnull;
+        if ( $ENV{TEST_GRAPH_DIR} ) {
+            ( my $file = $root_package ) =~ s/::/-/g;
+            $file .= '.svg';
+            $output = File::Spec->catfile( $ENV{TEST_GRAPH_DIR}, $file );
+        }
+
         my $grapher = Test::Meta::Grapher::Moose::Recorder->new(
             package => $root_package,
-            output  => '/dev/null',
+            output  => $output,
         );
         $grapher->run;
 
@@ -57,6 +66,10 @@ our @EXPORT = 'test_graphing_for';
             diag( Dumper( $grapher->recorded_edges_added_to_graph ) );
             diag('Expected:');
             diag( Dumper($expect) );
+        }
+
+        if ( $ENV{TEST_GRAPH_DIR} ) {
+            diag("Graph is at $output");
         }
 
         return ( $prefix++, $grapher );
