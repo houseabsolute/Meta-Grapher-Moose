@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.03     2015-08-30
+
 - If a parameterized role consumed roles by calling "with" inside it's role
   block, the roles it consumed there were simply ignored when graphing. This
   bug was reported by carthanc. I ended up fixing and testing this in a
