@@ -2,7 +2,7 @@
 
 0.03     2015-08-30
 
-- If a parameterized role consumed roles by calling "with" inside it's role
+- If a parameterized role consumed roles by calling "with" inside its role
   block, the roles it consumed there were simply ignored when graphing. This
   bug was reported by carthanc. I ended up fixing and testing this in a
   somewhat different way than the code in GitHub PR #55.
