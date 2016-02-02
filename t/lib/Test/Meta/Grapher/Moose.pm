@@ -18,6 +18,8 @@ use Test::Meta::Grapher::Moose::Recorder;
 use Test::Meta::Grapher::Moose;
 use Test::More 0.96;
 
+use Meta::Grapher::Moose::Constants qw( _CLASS _ROLE _P_ROLE );
+
 use parent 'Exporter';
 
 ## no critic (Modules::ProhibitAutomaticExportation)
@@ -179,8 +181,8 @@ sub _record_expect {
             to   => $name,
             type => (
                 $role =~ /::Param/
-                ? Meta::Grapher::Moose::_P_ROLE
-                : Meta::Grapher::Moose::_ROLE
+                ? _P_ROLE
+                : _ROLE
             ),
         };
     }
@@ -189,7 +191,7 @@ sub _record_expect {
         $expect->{ join ' - ', $super, $name } = {
             from => $super,
             to   => $name,
-            type => Meta::Grapher::Moose::_CLASS
+            type => _CLASS
         };
     }
 
