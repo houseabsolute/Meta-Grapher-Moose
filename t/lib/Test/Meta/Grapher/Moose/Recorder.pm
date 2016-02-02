@@ -20,7 +20,7 @@ has recorded_edges_added_to_graph => (
     default => sub { {} },
 );
 
-around _add_node_to_graph => sub {
+around _add_package_to_graph => sub {
     my $orig = shift;
     my $self = shift;
     my %p    = @_;

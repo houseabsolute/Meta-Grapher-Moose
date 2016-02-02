@@ -1,18 +1,17 @@
-requires "Getopt::Long" => "0";
+requires "Exporter" => "0";
 requires "GraphViz2" => "0";
 requires "Moose" => "0";
+requires "Moose::Role" => "0";
 requires "MooseX::Getopt::Dashes" => "0";
 requires "Scalar::Util" => "0";
 requires "Try::Tiny" => "0";
 requires "autodie" => "0";
-requires "constant" => "0";
-requires "namespace::autoclean" => "0";
+requires "base" => "0";
 requires "strict" => "0";
 requires "warnings" => "0";
 
 on 'test' => sub {
   requires "Class::MOP" => "0";
-  requires "Exporter" => "0";
   requires "ExtUtils::MakeMaker" => "0";
   requires "File::Spec" => "0";
   requires "Moose::Meta::Class" => "0";
@@ -21,6 +20,7 @@ on 'test' => sub {
   requires "Test::More" => "0.96";
   requires "Test::Requires" => "0";
   requires "lib" => "0";
+  requires "namespace::autoclean" => "0";
   requires "parent" => "0";
 };
 
