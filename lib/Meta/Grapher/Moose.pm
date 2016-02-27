@@ -119,7 +119,7 @@ sub _add_node_to_graph {
 sub _build_graphviz2 {
     return GraphViz2->new(
         global => { directed => 1 },
-        graph => {
+        graph  => {
             size  => '40,30',
             ratio => 'fill',
         },

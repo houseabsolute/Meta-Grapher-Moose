@@ -127,7 +127,7 @@ subtest(
     'class which consumes parameterized roles - p-roles only consume roles outside role block',
     sub {
         my %packages = (
-            'ClassA' => { with => [qw( ParamRoleA RoleB )] },
+            'ClassA'     => { with => [qw( ParamRoleA RoleB )] },
             'ParamRoleA' => {
                 with => ['RoleC'],
             },
@@ -161,7 +161,7 @@ subtest(
     'class which consumes parameterized roles - p-roles consume roles inside and outside of role block',
     sub {
         my %packages = (
-            'ClassA' => { with => [qw( ParamRoleA ParamRoleB )] },
+            'ClassA'     => { with => [qw( ParamRoleA ParamRoleB )] },
             'ParamRoleA' => {
                 with            => 'RoleC',
                 role_block_with => ['RoleD']
