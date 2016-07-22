@@ -8,8 +8,8 @@ use Test::Requires {
     'MooseX::Role::Parameterized' => '1.00',
 };
 
-use Test::More 0.96;
-use Test::Meta::Grapher::Moose;
+use Test::Meta::Grapher::Moose qw( test_graphing_for );
+use Test2::Bundle::Extended '!meta';
 
 subtest(
     'single class',
@@ -30,6 +30,7 @@ subtest(
     sub {
         my %packages = (
             'ClassB' => { extends => 'ClassA' },
+            'ClassA' => {},
         );
 
         test_graphing_for(
@@ -45,6 +46,7 @@ subtest(
         my %packages = (
             'ClassC' => { extends => 'ClassB' },
             'ClassB' => { extends => 'ClassA' },
+            'ClassA' => {},
         );
 
         test_graphing_for(
@@ -78,6 +80,7 @@ subtest(
             'ClassA' => { with => 'RoleA' },
             'RoleA'  => { with => 'RoleB' },
             'RoleB'  => { with => 'RoleC' },
+            'RoleC'  => {},
         );
 
         test_graphing_for(
@@ -113,7 +116,9 @@ subtest(
         my %packages = (
             'ClassA' => { with => [qw( RoleA RoleB )] },
             'RoleA'  => { with => [qw( RoleB RoleC )] },
+            'RoleB'  => {},
             'RoleC'  => { with => [qw( RoleB RoleD )] },
+            'RoleD'  => {},
         );
 
         test_graphing_for(
@@ -131,7 +136,8 @@ subtest(
             'ParamRoleA' => {
                 with => ['RoleC'],
             },
-            'ParamRoleB' => {},
+            'RoleB' => {},
+            'RoleC' => {},
         );
 
         test_graphing_for(
@@ -148,6 +154,8 @@ subtest(
             'ClassA' => { with => [qw( ParamRoleA ParamRoleB )] },
             'ParamRoleA' => { role_block_with => ['RoleC'] },
             'ParamRoleB' => { role_block_with => ['RoleD'] },
+            'RoleC'      => {},
+            'RoleD'      => {},
         );
 
         test_graphing_for(
@@ -170,6 +178,10 @@ subtest(
                 with            => 'RoleE',
                 role_block_with => ['RoleF']
             },
+            'RoleC' => {},
+            'RoleD' => {},
+            'RoleE' => {},
+            'RoleF' => {},
         );
 
         test_graphing_for(
