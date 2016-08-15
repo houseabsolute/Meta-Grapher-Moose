@@ -1,7 +1,7 @@
 package Meta::Grapher::Moose::CommandLine;
 
 use strict;
-use warningss;
+use warnings;
 use namespace::autoclean;
 
 our $VERSION = '1.00';
@@ -55,6 +55,7 @@ sub run {
 # We can't just override this since the method created for us was installed
 # directly in this class. Instead wrap it with around and
 around print_usage_text => sub {
+    ## no critic (InputOutput::RequireCheckedSyscalls)
     print <<'TEXT';
 Many more command line options are available depending on they type of
 renderer you are using. Please refer to the documentation for the individual

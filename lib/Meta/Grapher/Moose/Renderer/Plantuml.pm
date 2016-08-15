@@ -3,6 +3,7 @@ package Meta::Grapher::Moose::Renderer::Plantuml;
 use strict;
 use warnings;
 use namespace::autoclean;
+use autodie qw( :all );
 
 our $VERSION = '1.00';
 
@@ -90,7 +91,7 @@ sub render {
     }
 
     if ( $self->format =~ /\A(?:src|plantuml)\z/ ) {
-        print $fh $src;
+        print {$fh} $src or die $!;
         return;
     }
 

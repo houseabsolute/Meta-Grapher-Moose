@@ -3,6 +3,7 @@ package Meta::Grapher::Moose::Renderer::Graphviz;
 use strict;
 use warnings;
 use namespace::autoclean;
+use autodie qw( :all );
 
 our $VERSION = '1.00';
 
@@ -58,7 +59,9 @@ sub render {
     # If we were rendering to STDOUT, send to STDOUT
     unless ( $self->has_output ) {
         open my $fh, '<:raw', $output;
-        print while <$fh>;
+        while (<$fh>) {
+            print or die $!;
+        }
         close $fh;
         unlink $output;
     }
