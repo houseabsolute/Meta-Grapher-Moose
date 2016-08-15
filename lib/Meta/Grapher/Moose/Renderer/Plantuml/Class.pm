@@ -1,41 +1,20 @@
 package Meta::Grapher::Moose::Renderer::Plantuml::Class;
+
+use strict;
+use warnings;
 use namespace::autoclean;
+
+use Digest::MD5 qw( md5_hex );
+
 use Moose;
 
 our $VERSION = '1.00';
-
-# ABSTRACT: Utility class for Meta::Grapher::Moose::Renderer::Plantuml
-
-use Digest::MD5 qw(md5_hex);
-
-=head1 DESCRIPTION
-
-Internal class part of the L<Meta::Grapher::Moose::Renderer::Plantuml>
-renderer.  Represents a package to be rendered.
-
-=head2 Attributes
-
-=head3 id
-
-The id of the package (which is the actual true classname of the package,
-even if the class is an anonymous class)
-
-Required.
-
-=cut
 
 has id => (
     is       => 'ro',
     isa      => 'Str',
     required => 1,
 );
-
-=head3 label
-
-The classname we put on the diagram (which might be the true classname or the
-parameterized class name we create an anonymous class from)
-
-=cut
 
 has label => (
     is      => 'ro',
@@ -44,17 +23,6 @@ has label => (
     default => sub { shift->name },
 );
 
-=head3 type
-
-The type of the package.
-
-One of the values provided by L<Meta::Grapher::Moose::Constants>: C<_CLASS>,
-C<_ROLE>, C<_ANON_ROLE> or C<_P_ROLE>
-
-Required.
-
-=cut
-
 # TODO: This should probably be an enum type
 has class_type => (
     is       => 'ro',
@@ -62,27 +30,11 @@ has class_type => (
     required => 1,
 );
 
-=head3 class_attributes
-
-An arrayref of strings, the name of attributes for the class.
-
-Required.
-
-=cut
-
 has class_attributes => (
     is       => 'ro',
     isa      => 'ArrayRef[Str]',
     required => 1,
 );
-
-=head3 class_methods
-
-An arrayref of strings, the name of methods for the class.
-
-Required.
-
-=cut
 
 has class_methods => (
     is       => 'ro',
@@ -90,31 +42,11 @@ has class_methods => (
     required => 1,
 );
 
-=head3 formatting
-
-A copy of the C<formatting> attribute from the controlling
-L<Meta::Grapher::Moose::Renderer::Plantuml> instance that created this
-instance.
-
-Required.
-
-=cut
-
 has formatting => (
     is       => 'ro',
     isa      => 'HashRef[Str]',
     required => 1,
 );
-
-########################################################################
-
-=head2 Methods
-
-=head3 to_plantuml
-
-Return source code representing this class
-
-=cut
 
 sub to_plantuml {
     my $self = shift;
@@ -134,5 +66,69 @@ END
 }
 
 __PACKAGE__->meta->make_immutable;
+
 1;
 
+# ABSTRACT: Utility class for Meta::Grapher::Moose::Renderer::Plantuml
+
+__END__
+
+=head1 DESCRIPTION
+
+Internal class part of the L<Meta::Grapher::Moose::Renderer::Plantuml>
+renderer. Represents a package to be rendered.
+
+=head1 ATTRIBUTES
+
+This class accepts the following attributes:
+
+=head2 id
+
+The id of the package (which is the actual true classname of the package,
+even if the class is an anonymous class)
+
+Required.
+
+=head2 label
+
+The class name we put on the diagram (which might be the true class name or
+the parameterized class name we create an anonymous class from)
+
+=head2 type
+
+The type of the package.
+
+One of the values provided by L<Meta::Grapher::Moose::Constants>: C<_CLASS>,
+C<_ROLE>, C<_ANON_ROLE> or C<_P_ROLE>
+
+Required.
+
+=head2 class_attributes
+
+An arrayref of strings, the name of attributes for the class.
+
+Required.
+
+=head2 class_methods
+
+An arrayref of strings, the name of methods for the class.
+
+Required.
+
+=head2 formatting
+
+A copy of the C<formatting> attribute from the controlling
+L<Meta::Grapher::Moose::Renderer::Plantuml> instance that created this
+instance.
+
+Required.
+
+=head1 METHODS
+
+This class provides the following methods:
+
+=head2 to_plantuml
+
+Return source code representing this class
+
+=cut

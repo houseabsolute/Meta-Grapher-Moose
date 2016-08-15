@@ -1,27 +1,14 @@
 package Meta::Grapher::Moose::Renderer::Plantuml::Link;
-use namespace::autoclean;
-use Moose;
 
-use Digest::MD5 qw(md5_hex);
+use strict;
+use warnings;
+use namespace::autoclean;
 
 our $VERSION = '1.00';
 
-# ABSTRACT: Utility class for Meta::Grapher::Moose::Renderer::Plantuml
+use Digest::MD5 qw(md5_hex);
 
-=head1 DESCRIPTION
-
-Internal class.  Part of the L<Meta::Grapher::Moose::Renderer::Plantuml>
-renderer.  Represents a link between two packages to be rendered.
-
-=head2 Attributes
-
-=head3 from
-
-The id of the package we're linking from.
-
-Required.
-
-=cut
+use Moose;
 
 has from => (
     is       => 'ro',
@@ -29,27 +16,11 @@ has from => (
     required => 1,
 );
 
-=head3 to
-
-The id of the package we're linking to.
-
-Required.
-
-=cut
-
 has to => (
     is       => 'ro',
     isa      => 'Str',
     required => 1,
 );
-
-=head2 Methods
-
-=head3 to_plantuml
-
-Return source code representing this link as plantuml source.
-
-=cut
 
 sub to_plantuml {
     my $self = shift;
@@ -60,4 +31,44 @@ END
 }
 
 __PACKAGE__->meta->make_immutable;
+
 1;
+
+# ABSTRACT: Utility class for Meta::Grapher::Moose::Renderer::Plantuml
+
+__END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 DESCRIPTION
+
+Internal class. Part of the L<Meta::Grapher::Moose::Renderer::Plantuml>
+renderer. Represents a link between two packages to be rendered.
+
+=head1 ATTRIBUTES
+
+This class accepts the following attributes:
+
+=head2 from
+
+The id of the package we're linking from.
+
+Required.
+
+=head2 to
+
+The id of the package we're linking to.
+
+Required.
+
+=head1 METHODS
+
+This class provides the following methods:
+
+=head2 to_plantuml
+
+Return source code representing this link as plantuml source.
+
+=cut

@@ -1,24 +1,17 @@
 package Meta::Grapher::Moose::Role::HasOutput;
-use namespace::autoclean;
-use Moose::Role;
 
-# ABSTRACT: Role with standard way to specify Meta::Grapher::Moose output
+use strict;
+use warnings;
+use namespace::autoclean;
 
 our $VERSION = '1.00';
 
-
-# these are documented in the role consumers
-
-=for Pod::Coverage output has_output format
-
-=cut
+use Moose::Role;
 
 has output => (
     is  => 'ro',
     isa => 'Str',
 );
-
-sub has_output { my $self = shift; return defined $self->output }
 
 has format => (
     is      => 'ro',
@@ -26,6 +19,8 @@ has format => (
     lazy    => 1,
     builder => '_build_format',
 );
+
+sub has_output { defined $_[0]->output }
 
 sub _build_format {
     my $self = shift;
@@ -42,3 +37,9 @@ sub _build_format {
 }
 
 1;
+
+# ABSTRACT: Role with standard way to specify Meta::Grapher::Moose output
+
+__END__
+
+=for Pod::Coverage output has_output format

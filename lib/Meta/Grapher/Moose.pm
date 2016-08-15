@@ -1,73 +1,17 @@
 package Meta::Grapher::Moose;
+
+use strict;
+use warnings;
 use namespace::autoclean;
-use Moose;
-
-# ABSTRACT: Produce graphs showing meta-information about classes and roles
-
-use Class::MOP;
-use Try::Tiny;
-use Scalar::Util qw( blessed );
-
-use Meta::Grapher::Moose::Constants qw(
-    CLASS ROLE P_ROLE ANON_ROLE
-);
 
 our $VERSION = '1.00';
 
-=head1 SYNOPSIS
+use Class::MOP;
+use Meta::Grapher::Moose::Constants qw( CLASS ROLE P_ROLE ANON_ROLE );
+use Try::Tiny;
+use Scalar::Util qw( blessed );
 
-From the shell:
-
-   shell$ graph-meta.pl --package='My::Package::Name' --output='diagram.png'
-
-Manually
-
-    my $grapher = Meta::Grapher::Moose->new(
-        package => 'My::Package::Name'
-        renderer => Meta::Grapher::Moose::Renderer::Plantuml->new(
-            output => 'diagram.png',
-        )
-    );
-    $grapher->run;
-
-=head1 DESCRIPTION
-
-STOP: The common usage for this module is straight from the command line.
-You should read the documentation for L<graph-meta.pl> to see how that works.
-
-This module allows you to create graphs of your Moose classes showing a directed
-graph of the parent classes and roles that your class consumes recursively.  In
-short, it can visually answer the questions like "Why did I end up consuming
-that role" and, with the right renderer backend, "Where did that method come
-from?"
-
-=head2 Example Output
-
-With the GraphViz renderer (no methods/attributes):
-
-=for text
-   http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/graphviz/example.png
-
-=for html
-   <img src="http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/graphviz/example.png">
-
-With the PlantUML renderer:
-
-=for text
-   http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/plantuml/example.png
-
-=for html
-   <img src="http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/plantuml/example.png">
-
-=head2 Attributes
-
-=head3 package
-
-The name of package that we should render a graph for.
-
-String.  Required.
-
-=cut
+use Moose;
 
 has package => (
     is       => 'ro',
@@ -75,63 +19,25 @@ has package => (
     required => 1,
 );
 
-=head3 show_meta
-
-Since every Moose class and role normally has a C<meta()> method it is
-omitted from every class for brevity;  Enabling this option causes it to be
-rendered.
-
-=cut
-
 has show_meta => (
     is  => 'ro',
     isa => 'Bool',
 );
-
-=head3 show_new
-
-The standard C<new()> constructor is omitted from every class for brevity;
-Enabling this option causes it to be rendered.
-
-=cut
 
 has show_new => (
     is  => 'ro',
     isa => 'Bool',
 );
 
-=head3 show_destroy
-
-The C<DESTROY()> method that Moose installs is omitted from every class for
-brevity; Enabling this option causes it to be rendered.
-
-=cut
-
 has show_destroy => (
     is  => 'ro',
     isa => 'Bool',
 );
 
-=head3 show_moose_object
-
-The L<Moose::Object> base class is normally omitted from the diagram for
-brevity.  Enabling this option causes it be rendered.
-
-=cut
-
 has show_moose_object => (
     is  => 'ro',
     isa => 'Bool',
 );
-
-=head3 _renderer
-
-The renderer instance you want to use to create the graph.
-
-Something that consumes L<Meta::Grapher::Moose::Role::Renderer>. Required,
-should be passed as the C<renderer> argument (without the leading underscore.)
-
-=cut
 
 has _renderer => (
     is       => 'ro',
@@ -180,19 +86,6 @@ sub _seen_edge {
 }
 
 with 'MooseX::Getopt::Dashes';
-
-=head2 Methods
-
-=head3 $grapher->run
-
-Examines the package from C<package> and passes this information to the renderer
-through calls to C<add_edge> and C<add_package>, before finally calling the
-C<render> method on the renderer to kick off the creation of the graph.
-
-Takes no arguments and returns nothing (though presumably the renderer will
-write out the graph when this method is called.)
-
-=cut
 
 sub run {
     my $self = shift;
@@ -478,4 +371,95 @@ sub _node_label_for {
 }
 
 __PACKAGE__->meta->make_immutable;
+
 1;
+
+# ABSTRACT: Produce graphs showing meta-information about classes and roles
+
+__END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 SYNOPSIS
+
+From the shell:
+
+   foo@bar:~/package$ graph-meta.pl --package='My::Package::Name' --output='diagram.png'
+
+Or from code:
+
+    my $grapher = Meta::Grapher::Moose->new(
+        package  => 'My::Package::Name',
+        renderer => Meta::Grapher::Moose::Renderer::Plantuml->new(
+            output => 'diagram.png',
+        ),
+    );
+    $grapher->run;
+
+=head1 DESCRIPTION
+
+STOP: The most common usage for this module is to use the command line
+F<graph-meta.pl> program. You should read the documentation for
+L<graph-meta.pl> to see how that works.
+
+This module allows you to create graphs of your Moose classes showing a
+directed graph of the parent classes and roles that your class consumes
+recursively. In short, it can visually answer the questions like "Why did I
+end up consuming that role" and, with the right renderer backend, "Where did
+that method come from?"
+
+=head2 Example Output
+
+With the GraphViz renderer (no methods/attributes):
+L<http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/graphviz/example.png>
+
+=for html
+   <img src="http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/graphviz/example.png">
+
+And with the PlantUML renderer:
+L<http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/plantuml/example.png>
+
+=for html
+   <img src="http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/plantuml/example.png">
+
+=head1 ATTRIBUTES
+
+This class accepts the following attributes:
+
+=head2 package
+
+The name of package that we should render a graph for.
+
+String. Required.
+
+=head2 show_meta
+
+Since every Moose class and role normally has a C<meta()> method it is
+omitted from every class for brevity;  Enabling this option causes it to be
+rendered.
+
+=head2 show_new
+
+The standard C<new()> constructor is omitted from every class for brevity;
+Enabling this option causes it to be rendered.
+
+=head2 show_destroy
+
+The C<DESTROY()> method that Moose installs is omitted from every class for
+brevity; Enabling this option causes it to be rendered.
+
+=head2 show_moose_object
+
+The L<Moose::Object> base class is normally omitted from the diagram for
+brevity. Enabling this option causes it be rendered.
+
+=head2 _renderer
+
+The renderer instance you want to use to create the graph.
+
+Something that consumes L<Meta::Grapher::Moose::Role::Renderer>. Required,
+should be passed as the C<renderer> argument (without the leading underscore.)
+
+=cut

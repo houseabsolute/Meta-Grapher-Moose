@@ -4,16 +4,15 @@ package Test::Meta::Grapher::Moose;
 use strict;
 use warnings;
 
-use lib 't/lib';
-
 use B;
 use Class::MOP ();
 use Data::Dumper::Concise;
 use File::Spec;
 use List::Util qw(uniq);
-use Meta::Grapher::Moose;
+use Meta::Grapher::Moose::Constants qw( CLASS ROLE P_ROLE ANON_ROLE );
 use Meta::Grapher::Moose::Renderer::Graphviz;
 use Meta::Grapher::Moose::Renderer::Test;
+use Meta::Grapher::Moose;
 use Moose ();
 use Moose::Meta::Class;
 use Moose::Meta::Role;
@@ -22,9 +21,7 @@ use MooseX::Role::Parameterized ();
 use Test2::API qw( context );
 use Test2::Bundle::Extended;
 
-use Meta::Grapher::Moose::Constants qw( CLASS ROLE P_ROLE ANON_ROLE );
-
-use parent 'Exporter';
+use Exporter qw( import );
 
 our @EXPORT_OK = qw( test_graphing_for );
 

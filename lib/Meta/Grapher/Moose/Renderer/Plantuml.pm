@@ -1,92 +1,37 @@
 package Meta::Grapher::Moose::Renderer::Plantuml;
+
+use strict;
+use warnings;
 use namespace::autoclean;
-use Moose;
 
 our $VERSION = '1.00';
 
-# ABSTRACT: Render a Meta::Grapher::Moose as a graph using PlantUML
-
+use IPC::Run3;
 use Meta::Grapher::Moose::Constants qw( CLASS ROLE P_ROLE ANON_ROLE );
 use Meta::Grapher::Moose::Renderer::Plantuml::Class;
 use Meta::Grapher::Moose::Renderer::Plantuml::Link;
 
-use IPC::Run3;
+use Moose;
 
 with(
     'Meta::Grapher::Moose::Role::HasOutput',
     'Meta::Grapher::Moose::Role::Renderer',
 );
 
-=head1 SYNOPSIS
-
-    Meta::Grapher::Moose->new(
-        renderer => Meta::Grapher::Moose::Renderer::Plantuml->new(),
-        ...
-    );
-
-=head1 DESCRIPTION
-
-This is one of the standard renderers that ships as part of the
-Meta-Grapher-Moose distribution.
-
-It uses the PlantUML Java distribution to create graphs.
-
-=head2 Attributes
-
-=cut
-
-########################################################################
-# config
-########################################################################
-
-=head3 java_command
-
-The command to run the Java binary.
-
-This defaults to 'java', so it'll use whatever Java is in the path.
-
-=cut
-
 has java_command => (
-    is      => 'ro',
-    isa     => 'Str',
-    default => 'java',
-    documentation =>
-        'The command to run the java binary.  Defaults to "java"',
+    is            => 'ro',
+    isa           => 'Str',
+    default       => 'java',
+    documentation => 'The command to run the java binary. Defaults to "java"',
 );
-
-=head3 plantuml_jar
-
-The full path to the C<plantuml.jar> jar file.
-
-This defaults to C<plantuml.jar>, meaning that it'll look for that jar in
-the current working directory.
-
-=cut
 
 has plantuml_jar => (
     is      => 'ro',
     isa     => 'Str',
     default => 'plantuml.jar',
     documentation =>
-        'Path to the plantuml.jar.  Defaults to plantuml.jar in the current directory',
+        'Path to the plantuml.jar. Defaults to plantuml.jar in the current directory',
 );
-
-=head3 formatting
-
-The specific spot markup that you want to apply to your classes depending
-on what type your packages are.  The default values are:
-
-    {
-        class => '',
-        role  => '<<R,#FF7700>>',
-        prole => '<<P,orchid>>',
-    }
-
-More documentation on specific spot markup can be found in the "Specific Spot"
-section of L<http://plantuml.com/classes.html>.
-
-=cut
 
 has formatting => (
     is            => 'ro',
@@ -104,13 +49,8 @@ sub _build_formatting {
     };
 }
 
-########################################################################
-# internal state
-########################################################################
-
-# keep internal state of what we've seen until we're ready to render
-# and create the source code.
-
+# Keep internal state of what we've seen until we're ready to render and
+# create the source code.
 has _plantuml_classes => (
     is      => 'ro',
     isa     => 'HashRef[Meta::Grapher::Moose::Renderer::Plantuml::Class]',
@@ -133,14 +73,6 @@ has _plantuml_links => (
         _all_plantuml_links => 'elements',
     },
 );
-
-########################################################################
-# required methods
-########################################################################
-
-=for Pod::Coverage render add_package add_edge
-
-=cut
 
 sub render {
     my $self = shift;
@@ -178,7 +110,7 @@ sub _render_with_run3 {
     my $src  = shift;
     my $fh   = shift;
 
-    # note that errors just go to STDERR.  This should be probably altered
+    # note that errors just go to STDERR. This should be probably altered
     # to be something more user friendly at some point in the future.
     run3( [ $self->_full_java_command ], \$src, $fh );
 
@@ -218,8 +150,6 @@ sub add_edge {
     return;
 }
 
-########################################################################
-
 sub _calculate_source {
     my $self = shift;
 
@@ -233,10 +163,68 @@ sub _calculate_source {
 }
 
 __PACKAGE__->meta->make_immutable;
+
 1;
+
+# ABSTRACT: Render a Meta::Grapher::Moose as a graph using PlantUML
+
+__END__
+
+=pod
+
+=for Pod::Coverage render add_package add_edge
+
+=encoding UTF-8
 
 =head1 BUGS
 
 In order for PDF generation to work you must have several extra JAR files in
-the same directory as C<plantuml.jar>.  See L<http://plantuml.com/pdf.html>
+the same directory as C<plantuml.jar>. See L<http://plantuml.com/pdf.html>
 for more details.
+
+=head1 SYNOPSIS
+
+    Meta::Grapher::Moose->new(
+        renderer => Meta::Grapher::Moose::Renderer::Plantuml->new(),
+        ...
+    );
+
+=head1 DESCRIPTION
+
+This is one of the standard renderers that ships as part of the
+Meta-Grapher-Moose distribution.
+
+It uses the PlantUML Java distribution to create graphs.
+
+=head1 ATTRIBUTES
+
+This class accepts the following attributes:
+
+=head2 java_command
+
+The command to run the Java binary.
+
+This defaults to 'java', so it'll use whatever Java is in the path.
+
+=head2 plantuml_jar
+
+The full path to the C<plantuml.jar> jar file.
+
+This defaults to C<plantuml.jar>, meaning that it'll look for that jar in the
+current working directory.
+
+=head2 formatting
+
+The specific spot markup that you want to apply to your classes depending on
+what type your packages are. The default values are:
+
+    {
+        class => '',
+        role  => '<<R,#FF7700>>',
+        prole => '<<P,orchid>>',
+    }
+
+More documentation on specific spot markup can be found in the "Specific Spot"
+section of L<http://plantuml.com/classes.html>.
+
+=cut

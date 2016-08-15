@@ -1,43 +1,21 @@
 package Meta::Grapher::Moose::CommandLine;
+
+use strict;
+use warningss;
 use namespace::autoclean;
-use Moose;
 
 our $VERSION = '1.00';
 
-# ABSTRACT: Module supporting command line interface for Meta::Grapher::Moose
-
+# This globally changes the underlying Getopt::Long behavior to allow passing
+# through of unprocessed dash arguments without error, which allows us to have
+# multiple classes to have an attempt to read the file. Ideally this wouldn't
+# be a global setting, but the conclusion of #moose is that this is good
+# enough
+use Getopt::Long qw(:config pass_through);
 use Meta::Grapher::Moose;
 use Module::Runtime qw(require_module);
 
-# this globally changes the underlying Getopt::Long behavior to allow passing
-# through of unprocessed dash arguments without error, which allows us to have
-# multiple classes to have an attempt to read the file.  Ideally this wouldn't
-# be a global setting, but the conclusion of #moose is that this is good enough
-use Getopt::Long qw(:config pass_through);
-
-=head1 SYNOPSIS
-
-    Meta::Grapher::Moose::CommandLine->run;
-
-=head1 DESCRIPTION
-
-This is the module behind the L<graph-meta.pl> script.  You probably want to
-go read the documentation for that instead.
-
-=head2 Attributes
-
-=head3 renderer
-
-The name of the renderer we should instantiate and pass to
-L<Meta::Grapher::Moose> to render the graph with.
-
-This will be converted to a class name by uppercasing the first character,
-lowercasing all other characters and prepending
-L<Meta::Grapher::Moose::Renderer::> to it.
-
-Defaults to C<graphviz>.
-
-=cut
+use Moose;
 
 has renderer => (
     is            => 'ro',
@@ -48,51 +26,84 @@ has renderer => (
 
 with 'MooseX::Getopt::Dashes';
 
-=head2 Methods
-
-=head3 Meta::Grapher::Moose::CommandLine->run
-
-Class method.  Parses the command line options and creates a graph.
-
-=cut
-
 sub run {
     my $class = shift;
     my $self  = $class->new_with_options;
 
-    # attempt to dynamically load the renderer class
     my $renderer_classname
         = 'Meta::Grapher::Moose::Renderer::' . ucfirst lc $self->renderer;
     require_module($renderer_classname);
 
-    # any command line options that we didn't consume are passed onto the
-    # renderer so it gets a chance to process them
+    # Any command line options that we didn't consume are passed onto the
+    # renderer so it gets a chance to process them.
     my $renderer = $renderer_classname->new_with_options(
         argv => $self->extra_argv,
     );
 
-    # create the instance of the main object now.  We pass to it any
-    # command line options that aren't consumed by the renderer and this
-    # class
+    # We pass our main object any command line options that aren't consumed by
+    # the renderer and this class
     my $grapher = Meta::Grapher::Moose->new_with_options(
         renderer => $renderer,
         argv     => $renderer->extra_argv,
     );
 
-    # call run on the main class
     $grapher->run;
+
+    return;
 }
 
 # We can't just override this since the method created for us was installed
-# directly in this class.  Instead wrap it with around and
+# directly in this class. Instead wrap it with around and
 around print_usage_text => sub {
     print <<'TEXT';
 Many more command line options are available depending on they type of
-renderer you are using.  Please refer to the documentation for the individual
+renderer you are using. Please refer to the documentation for the individual
 renderers or use "perldoc graph-meta.pl" for an overview.
 TEXT
 };
 
 __PACKAGE__->meta->make_immutable;
-no Moose;
+
 1;
+
+# ABSTRACT: Module supporting command line interface for Meta::Grapher::Moose
+
+__END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 SYNOPSIS
+
+    Meta::Grapher::Moose::CommandLine->run;
+
+=head1 DESCRIPTION
+
+This is the module behind the L<graph-meta.pl> script. You probably want to go
+read the documentation for that instead.
+
+=head1 ATTRIBUTES
+
+This class accepts the following attributes:
+
+=head2 renderer
+
+The name of the renderer we should instantiate and pass to
+L<Meta::Grapher::Moose> to render the graph with.
+
+This will be converted to a class name by uppercasing the first character,
+lowercasing all other characters and prepending
+L<Meta::Grapher::Moose::Renderer::> to it.
+
+Defaults to C<graphviz>.
+
+=head1 METHODS
+
+This class provides the following methods:
+
+=head2 Meta::Grapher::Moose::CommandLine->run
+
+Class method. Parses the command line options and creates a graph.
+
+=cut
