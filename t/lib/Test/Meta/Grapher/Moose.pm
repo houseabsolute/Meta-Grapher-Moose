@@ -32,7 +32,7 @@ our @EXPORT_OK = qw( test_graphing_for );
         my $package_to_test = shift;
         my %packages        = @_;
 
-        my $expect = _define_packages( $prefix, %packages );
+        _define_packages( $prefix, %packages );
 
         my $root_package = join '::', $prefix, $package_to_test;
 
@@ -151,31 +151,27 @@ sub _define_packages {
     my $prefix   = shift;
     my %packages = @_;
 
-    my %expect;
-    for my $package ( sort keys %packages ) {
-        _define_one_package( $prefix, $package, \%packages, \%expect );
-    }
+    _define_one_package( $prefix, $_, \%packages ) for keys %packages;
 
-    return \%expect;
+    return;
 }
 
 sub _define_one_package {
     my $prefix   = shift;
     my $name     = shift;
     my $packages = shift;
-    my $expect   = shift;
 
     my $full_name = join '::', $prefix, $name;
 
     return $full_name if find_meta($full_name);
 
     my @roles
-        = map { _define_one_package( $prefix, $_, $packages, $expect ) }
+        = map { _define_one_package( $prefix, $_, $packages ) }
         _listify( $packages->{$name}{with} );
 
     if ( $name =~ /^Class/ ) {
         my @super
-            = map { _define_one_package( $prefix, $_, $packages, $expect ) }
+            = map { _define_one_package( $prefix, $_, $packages ) }
             _listify( $packages->{$name}{extends} );
 
         Moose::Meta::Class->create(
@@ -183,20 +179,16 @@ sub _define_one_package {
             ( @roles ? ( roles        => \@roles ) : () ),
             ( @super ? ( superclasses => \@super ) : () ),
         );
-
-        _record_expect( $full_name, \@roles, \@super, $expect );
     }
     elsif ( $name =~ /^Role/ ) {
         Moose::Meta::Role->create(
             $full_name,
             ( @roles ? ( roles => \@roles ) : () ),
         );
-
-        _record_expect( $full_name, \@roles, [], $expect );
     }
     elsif ( $name =~ /^ParamRole/ ) {
         my @role_block_roles
-            = map { _define_one_package( $prefix, $_, $packages, $expect ) }
+            = map { _define_one_package( $prefix, $_, $packages ) }
             _listify( $packages->{$name}{role_block_with} );
 
         ## no critic (Subroutines::ProhibitCallsToUnexportedSubs)
@@ -221,11 +213,6 @@ EOF
 
         die $@ if $@;
         ## use critic
-
-        _record_expect(
-            $full_name, [ @roles, @role_block_roles ], [],
-            $expect
-        );
     }
     else {
         die "unknown prefix for package - $name";
@@ -237,36 +224,6 @@ EOF
 sub _listify {
     return () unless $_[0];
     return ref $_[0] ? @{ $_[0] } : $_[0];
-}
-
-sub _record_expect {
-    my $name   = shift;
-    my $roles  = shift;
-    my $super  = shift;
-    my $expect = shift;
-
-    ## no critic (Subroutines::ProtectPrivateSubs)
-    for my $role ( @{$roles} ) {
-        $expect->{ join ' - ', $role, $name } = {
-            from => $role,
-            to   => $name,
-            type => (
-                $role =~ /::Param/
-                ? P_ROLE
-                : ROLE
-            ),
-        };
-    }
-
-    for my $super ( @{$super} ) {
-        $expect->{ join ' - ', $super, $name } = {
-            from => $super,
-            to   => $name,
-            type => CLASS
-        };
-    }
-
-    return;
 }
 
 1;
