@@ -36,8 +36,6 @@ our @EXPORT_OK = qw( test_graphing_for );
 
         my $root_package = join '::', $prefix, $package_to_test;
 
-        my $output = File::Spec->devnull;
-
         # run a grapher with the ::Test renderer that simply records what
         # it was asked to render
         my $renderer = Meta::Grapher::Moose::Renderer::Test->new;

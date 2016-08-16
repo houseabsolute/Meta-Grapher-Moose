@@ -95,7 +95,7 @@ L<Meta::Grapher::Moose> to render the graph with.
 
 This will be converted to a class name by uppercasing the first character,
 lowercasing all other characters and prepending
-L<Meta::Grapher::Moose::Renderer::> to it.
+C<Meta::Grapher::Moose::Renderer::> to it.
 
 Defaults to C<graphviz>.
 

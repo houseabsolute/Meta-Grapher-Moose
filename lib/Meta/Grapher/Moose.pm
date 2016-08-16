@@ -462,4 +462,12 @@ The renderer instance you want to use to create the graph.
 Something that consumes L<Meta::Grapher::Moose::Role::Renderer>. Required,
 should be passed as the C<renderer> argument (without the leading underscore.)
 
+=head1 METHODS
+
+This class provides the following methods:
+
+=head2 run
+
+Builds the graph from the source code and tells the renderer to render it.
+
 =cut
