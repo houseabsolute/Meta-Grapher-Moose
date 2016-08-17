@@ -4,25 +4,25 @@ package Test::Meta::Grapher::Moose;
 use strict;
 use warnings;
 
-use lib 't/lib';
-
+use B;
 use Class::MOP ();
-use Data::Dumper::Concise;
 use File::Spec;
+use List::Util 1.45 qw( uniq );
+use Meta::Grapher::Moose::Constants qw( CLASS ROLE P_ROLE ANON_ROLE );
+use Meta::Grapher::Moose::Renderer::Graphviz;
+use Meta::Grapher::Moose::Renderer::Test;
+use Meta::Grapher::Moose;
 use Moose ();
 use Moose::Meta::Class;
 use Moose::Meta::Role;
 use Moose::Util qw( find_meta );
 use MooseX::Role::Parameterized ();
-use Test::Meta::Grapher::Moose::Recorder;
-use Test::Meta::Grapher::Moose;
-use Test::More 0.96;
+use Test2::API qw( context );
+use Test2::Bundle::Extended;
 
-use parent 'Exporter';
+use Exporter qw( import );
 
-## no critic (Modules::ProhibitAutomaticExportation)
-our @EXPORT = 'test_graphing_for';
-## use critic
+our @EXPORT_OK = qw( test_graphing_for );
 
 {
     my $prefix = 'Test001';
@@ -31,46 +31,114 @@ our @EXPORT = 'test_graphing_for';
         my $package_to_test = shift;
         my %packages        = @_;
 
-        my $expect = _define_packages( $prefix, %packages );
+        _define_packages( $prefix, %packages );
 
         my $root_package = join '::', $prefix, $package_to_test;
 
-        my $output = File::Spec->devnull;
-        if ( $ENV{TEST_GRAPH_DIR} ) {
-            ( my $file = $root_package ) =~ s/::/-/g;
-            $file .= '.svg';
-            $output = File::Spec->catfile( $ENV{TEST_GRAPH_DIR}, $file );
+        # run a grapher with the ::Test renderer that simply records what
+        # it was asked to render
+        my $renderer = Meta::Grapher::Moose::Renderer::Test->new;
+        my $grapher  = Meta::Grapher::Moose->new(
+            package  => $root_package,
+            renderer => $renderer,
+        )->run;
+
+        if ( $ENV{OUTPUT_TEST_GRAPHS} ) {
+            Meta::Grapher::Moose->new(
+                package  => $root_package,
+                renderer => Meta::Grapher::Moose::Renderer::Graphviz->new(
+                    output => "/tmp/$prefix.png",
+                ),
+            )->run;
         }
 
-        my $grapher = Test::Meta::Grapher::Moose::Recorder->new(
-            package => $root_package,
-            output  => $output,
+        # check each of the nodes
+        my @conditions;
+        for my $package ( sort keys %packages ) {
+            my $name = $prefix . '::' . $package;
+            if ( $package =~ /ParamRole/ ) {
+                push @conditions, hash {
+                    field id    => $name;
+                    field label => $name;
+                    field type  => P_ROLE;
+                };
+                push @conditions, hash {
+                    field id    => match(qr/__ANON__/);
+                    field label => $name;
+                    field type  => ANON_ROLE;
+                };
+            }
+            else {
+                push @conditions, hash {
+                    field id    => $name;
+                    field label => $name;
+                };
+            }
+        }
+        is(
+            $renderer->nodes_for_comparison,
+            \@conditions,
+            'correct nodes'
         );
-        $grapher->run;
 
-        is_deeply(
-            $grapher->recorded_nodes_added_to_graph,
-            [$root_package],
-            'added a single node to the graph for the root node'
+        my %real_package_to_anonymouse_package;
+        for my $node ( @{ $renderer->nodes_for_comparison } ) {
+            next unless $node->{type} eq ANON_ROLE;
+            $real_package_to_anonymouse_package{ $node->{label} }
+                = $node->{id};
+        }
+
+        # check each of the edges
+        my @expected_edges;
+        for my $package ( keys %packages ) {
+            my $full_package    = $prefix . '::' . $package;
+            my $package_details = $packages{$package};
+
+            for my $extends_or_with (qw( extends with role_block_with )) {
+                for my $package_to_link_from (
+                    _listify( $package_details->{$extends_or_with} ) ) {
+                    my $full_package_to_link_from
+                        = $prefix . '::' . $package_to_link_from;
+                    my $full_package_to_link_to
+                        = ( $extends_or_with eq 'role_block_with' )
+                        ? $real_package_to_anonymouse_package{$full_package}
+                        : $full_package;
+
+                    my $anon_package = $real_package_to_anonymouse_package{
+                        $full_package_to_link_from};
+                    if ($anon_package) {
+                        push @expected_edges, {
+                            from => $full_package_to_link_from,
+                            to   => $anon_package,
+                            }, {
+                            from => $anon_package,
+                            to   => $full_package_to_link_to,
+                            };
+                        next;
+                    }
+
+                    push @expected_edges, {
+                        from => $full_package_to_link_from,
+                        to   => $full_package_to_link_to,
+                    };
+                }
+            }
+        }
+
+        # add the prefixes, to allow extra fields, make sure the
+        # order is consistent
+        @expected_edges = sort { $a cmp $b }
+            uniq map {"$_->{from} - $_->{to}"} @expected_edges;
+
+        my @got_edges = sort { $a cmp $b }
+            map {"$_->{from} - $_->{to}"}
+            @{ $renderer->edges_for_comparison };
+
+        is(
+            \@got_edges,
+            \@expected_edges,
+            'correct edges'
         );
-
-        unless (
-            is_deeply(
-                $grapher->recorded_edges_added_to_graph,
-                $expect,
-                'got expected edges'
-            )
-            ) {
-
-            diag('Got:');
-            diag( Dumper( $grapher->recorded_edges_added_to_graph ) );
-            diag('Expected:');
-            diag( Dumper($expect) );
-        }
-
-        if ( $ENV{TEST_GRAPH_DIR} ) {
-            diag("Graph is at $output");
-        }
 
         return ( $prefix++, $grapher );
     }
@@ -80,31 +148,27 @@ sub _define_packages {
     my $prefix   = shift;
     my %packages = @_;
 
-    my %expect;
-    for my $package ( sort keys %packages ) {
-        _define_one_package( $prefix, $package, \%packages, \%expect );
-    }
+    _define_one_package( $prefix, $_, \%packages ) for keys %packages;
 
-    return \%expect;
+    return;
 }
 
 sub _define_one_package {
     my $prefix   = shift;
     my $name     = shift;
     my $packages = shift;
-    my $expect   = shift;
 
     my $full_name = join '::', $prefix, $name;
 
     return $full_name if find_meta($full_name);
 
     my @roles
-        = map { _define_one_package( $prefix, $_, $packages, $expect ) }
+        = map { _define_one_package( $prefix, $_, $packages ) }
         _listify( $packages->{$name}{with} );
 
     if ( $name =~ /^Class/ ) {
         my @super
-            = map { _define_one_package( $prefix, $_, $packages, $expect ) }
+            = map { _define_one_package( $prefix, $_, $packages ) }
             _listify( $packages->{$name}{extends} );
 
         Moose::Meta::Class->create(
@@ -112,27 +176,25 @@ sub _define_one_package {
             ( @roles ? ( roles        => \@roles ) : () ),
             ( @super ? ( superclasses => \@super ) : () ),
         );
-
-        _record_expect( $full_name, \@roles, \@super, $expect );
     }
     elsif ( $name =~ /^Role/ ) {
         Moose::Meta::Role->create(
             $full_name,
             ( @roles ? ( roles => \@roles ) : () ),
         );
-
-        _record_expect( $full_name, \@roles, [], $expect );
     }
     elsif ( $name =~ /^ParamRole/ ) {
         my @role_block_roles
-            = map { _define_one_package( $prefix, $_, $packages, $expect ) }
+            = map { _define_one_package( $prefix, $_, $packages ) }
             _listify( $packages->{$name}{role_block_with} );
 
+        ## no critic (Subroutines::ProhibitCallsToUnexportedSubs)
         my $outer_with_list = join ', ',
             map { B::perlstring($_) } @roles;
 
         my $inner_with_list = join ', ',
             map { B::perlstring($_) } @role_block_roles;
+        ## use critic
 
         ## no critic (BuiltinFunctions::ProhibitStringyEval, ErrorHandling::RequireCheckingReturnValueOfEval)
         eval <<"EOF";
@@ -148,11 +210,6 @@ EOF
 
         die $@ if $@;
         ## use critic
-
-        _record_expect(
-            $full_name, [ @roles, @role_block_roles ], [],
-            $expect
-        );
     }
     else {
         die "unknown prefix for package - $name";
@@ -164,36 +221,6 @@ EOF
 sub _listify {
     return () unless $_[0];
     return ref $_[0] ? @{ $_[0] } : $_[0];
-}
-
-sub _record_expect {
-    my $name   = shift;
-    my $roles  = shift;
-    my $super  = shift;
-    my $expect = shift;
-
-    ## no critic (Subroutines::ProtectPrivateSubs)
-    for my $role ( @{$roles} ) {
-        $expect->{ join ' - ', $role, $name } = {
-            from => $role,
-            to   => $name,
-            type => (
-                $role =~ /::Param/
-                ? Meta::Grapher::Moose::_P_ROLE
-                : Meta::Grapher::Moose::_ROLE
-            ),
-        };
-    }
-
-    for my $super ( @{$super} ) {
-        $expect->{ join ' - ', $super, $name } = {
-            from => $super,
-            to   => $name,
-            type => Meta::Grapher::Moose::_CLASS
-        };
-    }
-
-    return;
 }
 
 1;
