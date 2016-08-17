@@ -4,7 +4,6 @@ use warnings;
 use lib 't/lib';
 
 use Test::Requires {
-    'Data::Dumper::Concise'       => '0',
     'MooseX::Role::Parameterized' => '1.00',
 };
 

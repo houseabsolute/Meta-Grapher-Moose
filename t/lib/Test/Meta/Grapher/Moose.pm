@@ -6,7 +6,6 @@ use warnings;
 
 use B;
 use Class::MOP ();
-use Data::Dumper::Concise;
 use File::Spec;
 use List::Util 1.45 qw( uniq );
 use Meta::Grapher::Moose::Constants qw( CLASS ROLE P_ROLE ANON_ROLE );
