@@ -5,7 +5,7 @@ use warnings;
 use namespace::autoclean;
 use autodie qw( :all );
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 use File::Temp qw( tempfile );
 use GraphViz2;
