@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.00     2016-08-17
+
 - Major reworking; Added pluggable renderers and PlantUML support. Added
   method and attributes support for renderes that support it. Made GraphViz
   graph not suck. Added ability to control output format from command

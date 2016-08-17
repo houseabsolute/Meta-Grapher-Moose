@@ -1,25 +1,100 @@
 # NAME
 
-Meta::Grapher::Moose - Produce a GraphViz graph showing meta-information about classes and roles
+Meta::Grapher::Moose - Produce graphs showing meta-information about classes and roles
 
 # VERSION
 
-version 0.04
+version 1.00
 
 # SYNOPSIS
 
-    you@hostname:~$ graph-meta.pl --package Your::Package --output your-package.svg
+From the shell:
+
+    foo@bar:~/package$ graph-meta.pl --package='My::Package::Name' --output='diagram.png'
+
+Or from code:
+
+    my $grapher = Meta::Grapher::Moose->new(
+        package  => 'My::Package::Name',
+        renderer => Meta::Grapher::Moose::Renderer::Plantuml->new(
+            output => 'diagram.png',
+        ),
+    );
+    $grapher->run;
 
 # DESCRIPTION
 
-This distribution ships an executable, `graph-meta.pl`, that uses
-[GraphViz2](https://metacpan.org/pod/GraphViz2) to produce a graph showing information about a package. It always
-shows the roles consumed by the package, and the roles those roles consume,
-and so on. If given a class name, it will also graph inheritance, but you can
-give this tool a role name as well.
+STOP: The most common usage for this module is to use the command line
+`graph-meta.pl` program. You should read the documentation for
+`graph-meta.pl` to see how that works.
 
-**This is still a very early release and there are a lot of improvements that
-could be made. Suggestions and pull requests are welcome.**
+This module allows you to create graphs of your Moose classes showing a
+directed graph of the parent classes and roles that your class consumes
+recursively. In short, it can visually answer the questions like "Why did I
+end up consuming that role" and, with the right renderer backend, "Where did
+that method come from?"
+
+## Example Output
+
+With the GraphViz renderer (no methods/attributes):
+[http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/graphviz/example.png](http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/graphviz/example.png)
+
+<div>
+    <img src="http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/graphviz/example.png">
+</div>
+
+And with the PlantUML renderer:
+[http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/plantuml/example.png](http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/plantuml/example.png)
+
+<div>
+    <img src="http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/plantuml/example.png">
+</div>
+
+# ATTRIBUTES
+
+This class accepts the following attributes:
+
+## package
+
+The name of package that we should render a graph for.
+
+String. Required.
+
+## show\_meta
+
+Since every Moose class and role normally has a `meta()` method it is
+omitted from every class for brevity;  Enabling this option causes it to be
+rendered.
+
+## show\_new
+
+The standard `new()` constructor is omitted from every class for brevity;
+Enabling this option causes it to be rendered.
+
+## show\_destroy
+
+The `DESTROY()` method that Moose installs is omitted from every class for
+brevity; Enabling this option causes it to be rendered.
+
+## show\_moose\_object
+
+The [Moose::Object](https://metacpan.org/pod/Moose::Object) base class is normally omitted from the diagram for
+brevity. Enabling this option causes it be rendered.
+
+## \_renderer
+
+The renderer instance you want to use to create the graph.
+
+Something that consumes [Meta::Grapher::Moose::Role::Renderer](https://metacpan.org/pod/Meta::Grapher::Moose::Role::Renderer). Required,
+should be passed as the `renderer` argument (without the leading underscore.)
+
+# METHODS
+
+This class provides the following methods:
+
+## run
+
+Builds the graph from the source code and tells the renderer to render it.
 
 # SUPPORT
 
@@ -49,7 +124,11 @@ button at [http://www.urth.org/~autarch/fs-donation.html](http://www.urth.org/~a
 
 Dave Rolsky <autarch@urth.org>
 
-# COPYRIGHT AND LICENCE
+# CONTRIBUTOR
+
+Mark Fowler <mark@twoshortplanks.com>
+
+# COPYRIGHT AND LICENSE
 
 This software is Copyright (c) 2016 by Dave Rolsky.
 
