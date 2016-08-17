@@ -1,8 +1,9 @@
 {{$NEXT}}
 
-- Major reworking;  Added pluggable renderers and PlantUML support.  Added
-  method and attributes support for renderes that support it.  Made GraphViz
-  graph not suck.  Added ability to control output format from command line.
+- Major reworking; Added pluggable renderers and PlantUML support. Added
+  method and attributes support for renderes that support it. Made GraphViz
+  graph not suck. Added ability to control output format from command
+  line. Implemented by Mark Fowler.
 
 
 0.03     2015-08-30
