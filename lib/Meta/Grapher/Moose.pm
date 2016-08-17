@@ -402,7 +402,7 @@ Or from code:
 
 STOP: The most common usage for this module is to use the command line
 F<graph-meta.pl> program. You should read the documentation for
-L<graph-meta.pl> to see how that works.
+F<graph-meta.pl> to see how that works.
 
 This module allows you to create graphs of your Moose classes showing a
 directed graph of the parent classes and roles that your class consumes

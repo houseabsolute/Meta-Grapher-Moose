@@ -81,7 +81,7 @@ __END__
 
 =head1 DESCRIPTION
 
-This is the module behind the L<graph-meta.pl> script. You probably want to go
+This is the module behind the F<graph-meta.pl> script. You probably want to go
 read the documentation for that instead.
 
 =head1 ATTRIBUTES
