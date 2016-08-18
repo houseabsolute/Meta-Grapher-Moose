@@ -4,7 +4,7 @@ Meta::Grapher::Moose - Produce graphs showing meta-information about classes and
 
 # VERSION
 
-version 1.01
+version 1.02
 
 # SYNOPSIS
 

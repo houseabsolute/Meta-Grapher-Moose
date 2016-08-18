@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.02     2016-08-18
+
 - Removed ':all' from 'use autodie'. This requires IPC::System::Simple to
   fatalize system and exec, but we're not actually calling those builtins.
 
