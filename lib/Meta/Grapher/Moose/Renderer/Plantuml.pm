@@ -3,7 +3,7 @@ package Meta::Grapher::Moose::Renderer::Plantuml;
 use strict;
 use warnings;
 use namespace::autoclean;
-use autodie qw( :all );
+use autodie;
 
 our $VERSION = '1.02';
 

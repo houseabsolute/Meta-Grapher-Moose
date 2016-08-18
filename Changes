@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+- Removed ':all' from 'use autodie'. This requires IPC::System::Simple to
+  fatalize system and exec, but we're not actually calling those builtins.
+
+
 1.01     2016-08-17
 
 - Disable tests with older versions of MooseX::Role::Parameterized. Older
