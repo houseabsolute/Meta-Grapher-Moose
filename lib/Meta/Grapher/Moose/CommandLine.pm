@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 # This globally changes the underlying Getopt::Long behavior to allow passing
 # through of unprocessed dash arguments without error, which allows us to have
