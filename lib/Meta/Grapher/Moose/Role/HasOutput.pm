@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 use Moose::Role;
 

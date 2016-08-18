@@ -8,7 +8,7 @@ use Digest::MD5 qw( md5_hex );
 
 use Moose;
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 has id => (
     is       => 'ro',
