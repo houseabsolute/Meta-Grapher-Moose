@@ -14,7 +14,9 @@ has 'attribute_in_superclass' => (
 );
 
 ## no critic (ControlStructures::ProhibitYadaOperator)
-sub method_in_superclass {...}
+sub method_in_superclass {
+    return;
+}
 
 __PACKAGE__->meta->make_immutable;
 1;

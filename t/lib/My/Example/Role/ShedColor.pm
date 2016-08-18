@@ -22,7 +22,9 @@ role {
 
     if ( $p->enable_painting ) {
         ## no critic (ControlStructures::ProhibitYadaOperator)
-        method paint => sub {...};
+        method paint => sub {
+            return;
+        };
     }
 };
 

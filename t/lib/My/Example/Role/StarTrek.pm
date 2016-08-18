@@ -13,6 +13,8 @@ has sulu    => ( is => 'ro' );
 has checkov => ( is => 'ro' );
 
 ## no critic (ControlStructures::ProhibitYadaOperator)
-sub beam_me_up {...}
+sub beam_me_up {
+    return;
+}
 
 1;

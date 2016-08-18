@@ -11,7 +11,9 @@ has 'attribute_in_class' => (
 );
 
 ## no critic (ControlStructures::ProhibitYadaOperator)
-sub method_in_example_class {...}
+sub method_in_example_class {
+    return;
+}
 
 __PACKAGE__->meta->make_immutable;
 1;

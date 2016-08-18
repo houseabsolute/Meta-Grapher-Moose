@@ -8,6 +8,8 @@ has fred  => ( is => 'ro' );
 has wilma => ( is => 'ro' );
 
 ## no critic (ControlStructures::ProhibitYadaOperator)
-sub have_a_yabba_do_time {...}
+sub have_a_yabba_do_time {
+    return;
+}
 
 1;

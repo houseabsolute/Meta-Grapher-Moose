@@ -20,7 +20,9 @@ with(
 );
 
 ## no critic (ControlStructures::ProhibitYadaOperator)
-sub method_in_baseclass {...}
+sub method_in_baseclass {
+    return;
+}
 
 __PACKAGE__->meta->make_immutable;
 1;

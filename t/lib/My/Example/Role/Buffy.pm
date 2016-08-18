@@ -10,6 +10,8 @@ has xander => ( is => 'ro' );
 has giles  => ( is => 'ro' );
 
 ## no critic (ControlStructures::ProhibitYadaOperator)
-sub slay {...}
+sub slay {
+    return;
+}
 
 1;

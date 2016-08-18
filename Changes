@@ -3,6 +3,9 @@
 - Removed ':all' from 'use autodie'. This requires IPC::System::Simple to
   fatalize system and exec, but we're not actually calling those builtins.
 
+- Removed use of yadda operator (...) in subroutines. This only works with
+  newer versions of Perl.
+
 
 1.01     2016-08-17
 
