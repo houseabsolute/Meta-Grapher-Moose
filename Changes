@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+- Disable tests with older versions of MooseX::Role::Parameterized that
+  cause different output ordering and cause false negatives.
+
 1.00     2016-08-17
 
 - Major reworking; Added pluggable renderers and PlantUML support. Added
