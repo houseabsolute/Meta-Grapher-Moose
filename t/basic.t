@@ -4,7 +4,7 @@ use warnings;
 use lib 't/lib';
 
 use Test::Requires {
-    'MooseX::Role::Parameterized' => '1.00',
+    'MooseX::Role::Parameterized' => '1.09',
 };
 
 use Test::Meta::Grapher::Moose qw( test_graphing_for );
