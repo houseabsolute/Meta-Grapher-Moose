@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.01     2016-08-17
+
 - Disable tests with older versions of MooseX::Role::Parameterized. Older
   versions named generated roles differently, leading to spurious test
   failures. Fixed by Mark Fowler.
