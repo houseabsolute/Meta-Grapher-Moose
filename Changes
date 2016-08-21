@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+- Fixed formatting of images in Pod on Metacpan to not exceed the width of the
+  browser window.
+
+
 1.02     2016-08-18
 
 - Removed ':all' from 'use autodie'. This requires IPC::System::Simple to
