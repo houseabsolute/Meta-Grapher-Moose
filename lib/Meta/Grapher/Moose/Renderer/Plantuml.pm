@@ -5,7 +5,7 @@ use warnings;
 use namespace::autoclean;
 use autodie;
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 use IPC::Run3;
 use Meta::Grapher::Moose::Constants qw( CLASS ROLE P_ROLE ANON_ROLE );

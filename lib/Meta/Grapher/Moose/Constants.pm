@@ -3,7 +3,7 @@ package Meta::Grapher::Moose::Constants;
 use strict;
 use warnings;
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 use Exporter qw( import );
 

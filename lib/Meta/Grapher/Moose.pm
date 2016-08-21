@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use namespace::autoclean;
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 use Class::MOP;
 use Meta::Grapher::Moose::Constants qw( CLASS ROLE P_ROLE ANON_ROLE );

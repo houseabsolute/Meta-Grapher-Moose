@@ -5,7 +5,7 @@ use warnings;
 
 # PODNAME: graph-meta.pl
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 use Meta::Grapher::Moose::CommandLine;
 exit Meta::Grapher::Moose::CommandLine->run;
