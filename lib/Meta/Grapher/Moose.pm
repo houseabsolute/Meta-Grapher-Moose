@@ -413,16 +413,16 @@ that method come from?"
 =head2 Example Output
 
 With the GraphViz renderer (no methods/attributes):
-L<http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/graphviz/example.png>
+L<http://st.aticpan.org/source/{dist-release}/examples/output/graphviz/example.png>
 
 =for html
-   <img src="http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/graphviz/example.png">
+   <img src="http://st.aticpan.org/source/{dist-release}/examples/output/graphviz/example.png" width="100%">
 
 And with the PlantUML renderer:
-L<http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/plantuml/example.png>
+L<http://st.aticpan.org/source/{dist-release}/examples/output/plantuml/example.png>
 
 =for html
-   <img src="http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/plantuml/example.png">
+   <img src="http://st.aticpan.org/source/{dist-release}/examples/output/plantuml/example.png" width="100%">
 
 =head1 ATTRIBUTES
 
