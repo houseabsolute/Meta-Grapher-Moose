@@ -4,7 +4,7 @@ Meta::Grapher::Moose - Produce graphs showing meta-information about classes and
 
 # VERSION
 
-version 1.02
+version 1.03
 
 # SYNOPSIS
 
@@ -37,17 +37,17 @@ that method come from?"
 ## Example Output
 
 With the GraphViz renderer (no methods/attributes):
-[http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/graphviz/example.png](http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/graphviz/example.png)
+[http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.03/examples/output/graphviz/example.png](http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.03/examples/output/graphviz/example.png)
 
 <div>
-    <img src="http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/graphviz/example.png">
+    <img src="http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.03/examples/output/graphviz/example.png" width="100%">
 </div>
 
 And with the PlantUML renderer:
-[http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/plantuml/example.png](http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/plantuml/example.png)
+[http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.03/examples/output/plantuml/example.png](http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.03/examples/output/plantuml/example.png)
 
 <div>
-    <img src="http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.00/examples/output/plantuml/example.png">
+    <img src="http://st.aticpan.org/source/DROLSKY/Meta-Grapher-Moose-1.03/examples/output/plantuml/example.png" width="100%">
 </div>
 
 # ATTRIBUTES

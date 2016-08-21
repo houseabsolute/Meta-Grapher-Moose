@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.03     2016-08-21
+
 - Fixed formatting of images in Pod on Metacpan to not exceed the width of the
   browser window.
 
